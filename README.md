@@ -10,13 +10,13 @@
 
 | Phase | 名称 | 状态 | 计划起止 |
 |---|---|---|---|
-| B.0 | 仓库骨架 | 🟡 进行中（B.1 脚手架已就绪） | 2026-09-18 |
-| B.1 | 环境搭建 + Hello UART | 🟡 进行中（脚手架 + Makefile） | W1–W2 |
-| B.2 | 硬件驱动（DHT11 / MPU6050 / NRF24）| 🟡 进行中（脚手架 + Makefile） | W3–W4 |
-| B.3 | FreeRTOS 移植（3 任务并行）| 🟡 进行中（脚手架 + Makefile） | W5–W6 |
-| B.4 | 自研二进制协议 + CRC16 | 🟡 进行中（脚手架 + Makefile） | W7–W8 |
-| B.5 | 多节点组网 + OneNet 上报 | 🟡 进行中（脚手架 + Makefile） | W9–W11 |
-| B.6 | 文档 + 简历素材 | 🟡 进行中（脚手架 + Makefile） | W12 |
+| B.0 | 仓库骨架 + 决策 | ✅ 已完成 | 2026-09-18 |
+| B.1 | 环境搭建 + Hello UART | 🟡 脚手架就绪，等 CubeMX + 烧录 | W1–W2 |
+| B.2 | 硬件驱动（DHT11 / MPU6050 / NRF24）| ⬜ 未开始 | W3–W4 |
+| B.3 | FreeRTOS 移植（3 任务并行）| ⬜ 未开始 | W5–W6 |
+| B.4 | 自研二进制协议 + CRC16 | ⬜ 未开始 | W7–W8 |
+| B.5 | 多节点组网 + OneNet 上报 | ⬜ 未开始 | W9–W11 |
+| B.6 | 文档 + 简历素材 | ⬜ 未开始 | W12 |
 
 ## 硬件清单
 
@@ -34,11 +34,22 @@
 
 ```
 stm32_sensor_net/
-├── README.md           ← 本文件
-├── docs/               ← 设计文档
-├── firmware/           ← STM32 节点固件（B.1 起填）
-├── gateway/            ← ESP32-S3 网关（B.5 起填）
-├── tools/              ← 协议测试脚本等（B.4 起填）
+├── README.md               ← 本文件
+├── docs/
+│   ├── PLAN.md             ← 执行方案
+│   ├── DECISIONS.md        ← D1–D6 决策记录
+│   ├── BOM.md              ← 硬件清单
+│   └── PROTOCOL.md         ← 协议文档（B.4 填）
+├── firmware/
+│   ├── Makefile.common     ← STM32 GCC 编译共用规则
+│   └── 01_hello_uart/      ← B.1 工程
+│       ├── Makefile
+│       ├── flash.sh
+│       └── README.md       ← CubeMX 操作步骤
+├── gateway/                ← ESP32-S3 网关（B.5 起填）
+├── tools/
+│   ├── install_toolchain.sh ← 工具链一键安装
+│   └── install_cubemx.sh    ← CubeMX 安装脚本
 └── .gitignore
 ```
 
