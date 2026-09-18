@@ -167,3 +167,62 @@ uint8_t ch = (uint8_t)USART1->DR;         /* 读出字符（同时清 RXNE） */
 5. Ch 12 NVIC + Ch 10 EXTI（B.3 FreeRTOS 中断优先级）
 
 > 完整 RM0008 PDF 在仓库根目录或 ST 官网下载。
+
+## BNO055（I2C 设备，非 RM0008 内容）
+
+> GY-BNO055 是 Bosch 九轴传感器，**自带 ARM Cortex-M0+ 跑融合算法**。
+> 通过 I2C 通信，STM32F103 用 I2C1（PB6=SCL, PB7=SDA）。
+> 不在 RM0008 内，需要看 BNO055 datasheet：https://www.bosch-sensortec.com/products/smart-sensors/bno055/
+
+### BNO055 关键特性
+
+| 特性 | 值 |
+|---|---|
+| 轴数 | 9（加速度 + 陀螺仪 + 磁力计）|
+| 融合算法 | 板载（无需自己写）|
+| 输出 | 欧拉角 / 四元数 / 旋转向量 / 重力向量 |
+| 默认 I2C 地址 | **0x28**（ADR 引脚接 GND）|
+| 备用 I2C 地址 | 0x29（ADR 引脚接 VDD）|
+| 工作电压 | 3.3V（GY 模块板上自带稳压）|
+| 默认 I2C 时钟 | 400 kHz（Fast Mode）|
+
+### BNO055 关键寄存器（datasheet §4）
+
+| 寄存器地址 | 名称 | 说明 |
+|---|---|---|
+| 0x00 | CHIP_ID | 应读出 0xA0（识别用）|
+| 0x07 | EUL_PITCH_MSB | 俯仰角（pitch）高字节 |
+| 0x08 | EUL_ROLL_MSB | 横滚角（roll）高字节 |
+| 0x09 | EUL_HEADING_MSB | 航向角（yaw）高字节 |
+| 0x3D | OPR_MODE | 操作模式（NDOF = 0x0C = 九轴融合）|
+| 0x3B | PWR_MODE | 电源模式（0x00 = Normal）|
+| 0x3E | SYS_TRIGGER | 系统触发（含复位位）|
+
+### BNO055 I2C 读欧拉角流程
+
+```c
+// 1. 探测设备（HAL_I2C_IsDeviceReady 或自己写）
+uint8_t who_am_i;
+HAL_I2C_Mem_Read(&hi2c1, 0x28<<1, 0x00, I2C_MEMADD_SIZE_8BIT, &who_am_i, 1, 100);
+// 期望：0xA0
+
+// 2. 配置为 NDOF 模式（九轴融合）
+uint8_t mode = 0x0C;
+HAL_I2C_Mem_Write(&hi2c1, 0x28<<1, 0x3D, I2C_MEMADD_SIZE_8BIT, &mode, 1, 100);
+
+// 3. 读欧拉角（每 100ms 一次）
+uint8_t buf[6];
+HAL_I2C_Mem_Read(&hi2c1, 0x28<<1, 0x1A, I2C_MEMADD_SIZE_8BIT, buf, 6, 100);
+// buf[0..1] = heading (yaw), buf[2..3] = roll, buf[4..5] = pitch
+// 单位：1/16 度（即 raw_value / 16.0 = 度）
+```
+
+### BNO055 vs MPU6050 简历写法对比
+
+```
+MPU6050（普通）："通过 I2C 读取 MPU6050 加速度与陀螺仪原始数据，应用卡尔曼滤波融合姿态"
+BNO055（进阶）："通过 I2C 配置 GY-BNO055 九轴传感器，应用板载 Bosch 传感器融合算法，
+                  直接读取欧拉角（含磁力计校准，无累计漂移）"
+```
+
+> **用 BNO055 的简历含金量高于 MPU6050**：面试官会问"为什么选 BNO055 不选 MPU6050"，你能答出"省去融合算法开发"和"磁力计校准"就是亮点。
