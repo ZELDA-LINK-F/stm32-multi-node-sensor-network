@@ -1,0 +1,102 @@
+# ============================================
+# STM32F103 + HAL + GCC 共用 Makefile
+# 所有 01_xx / 02_xx 工程都 include 这个
+# ============================================
+
+# === 工具链 ===
+PREFIX  := arm-none-eabi-
+CC      := $(PREFIX)gcc
+AS      := $(PREFIX)gcc -x assembler-with-cpp
+CP      := $(PREFIX)objcopy
+SZ      := $(PREFIX)size
+
+# === 工程配置（每个子工程自己定义）===
+# TARGET  : 二进制文件名（不带后缀）
+# BUILD_DIR: 编译产物目录
+# C_SOURCES / ASM_SOURCES: 源文件列表（在子工程 Makefile 里展开）
+# C_INCLUDES : 头文件路径
+# C_DEFS     : 宏定义
+TARGET      ?= firmware
+BUILD_DIR   ?= build
+C_DEFS      ?=
+C_INCLUDES  ?=
+C_SOURCES   ?=
+ASM_SOURCES ?=
+
+# === CPU 编译选项 ===
+CPU     := -mcpu=cortex-m3
+FPU     :=
+FLOAT   :=
+MCU     := $(CPU) -mthumb $(FLOAT) $(FPU)
+
+# === 编译选项 ===
+CFLAGS  := $(MCU) $(C_DEFS) $(C_INCLUDES) -Os -g3 -std=gnu11 \
+           -Wall -Wextra -Wundef -Wdouble-promotion \
+           -ffunction-sections -fdata-sections \
+           -fno-common -fmessage-length=0
+
+ASFLAGS := $(MCU) $(C_INCLUDES) -Wall -ffunction-sections -fdata-sections
+LDFLAGS := $(MCU) -specs=nano.specs -T$(LDSCRIPT) \
+           -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref \
+           -Wl,--gc-sections
+
+# === CubeMX 标准目录（多数 STM32 工程用这套）===
+CUBE_INC := \
+    -IDrivers/STM32F1xx_HAL_Driver/Inc \
+    -IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy \
+    -IDrivers/CMSIS/Device/ST/STM32F1xx/Include \
+    -IDrivers/CMSIS/Include
+
+ALL_INCLUDES := $(CUBE_INC) $(C_INCLUDES)
+
+# === 默认链接脚本（按芯片系列，VET6 用 VE 那个）===
+LDSCRIPT := STM32F103VETx_FLASH.ld
+
+# === 编译流程 ===
+OBJECTS  = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
+vpath %.s $(sort $(dir $(ASM_SOURCES)))
+
+$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
+	$(CC) -c $(CFLAGS) -I. $(ALL_INCLUDES) $< -o $@
+
+$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+	$(AS) -c $(ASFLAGS) -I. $< -o $@
+
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	$(SZ) $@
+
+$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
+	$(CP) -O ihex $< $@
+
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
+	$(CP) -O binary -S $< $@
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+# === 目标 ===
+.PHONY: all clean flash debug openocd
+all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR)/$(TARGET).hex
+
+flash: all
+	st-flash --reset write $(BUILD_DIR)/$(TARGET).bin 0x08000000
+
+openocd:
+	openocd -f interface/stlink.cfg -f target/stm32f1x.cfg
+
+debug: all
+	@echo "启动 OpenOCD 在另一个终端：make openocd"
+	@echo "然后 GDB：arm-none-eabi-gdb -ex 'target extended-remote :3333' $(BUILD_DIR)/$(TARGET).elf"
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+# === 工具自检 ===
+check-tools:
+	@for t in $(CC) $(CP) $(SZ) openocd st-flash; do \
+	    command -v $$t >/dev/null || { echo "❌ MISSING: $$t"; exit 1; }; \
+	done
+	@echo "✅ 工具链齐全"
