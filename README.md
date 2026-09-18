@@ -12,7 +12,7 @@
 |---|---|---|---|
 | B.0 | 仓库骨架 + 决策 | ✅ 已完成 | 2026-09-18 |
 | B.1 | 环境搭建 + Hello UART | 🟢 编译通过（732B），等烧录验证 | W1–W2 |
-| B.2 | 硬件驱动（DHT11 / BNO055 / NRF24）| ⬜ 未开始 | W3–W4 |
+| B.2 | 硬件驱动（DHT11 / BNO055 / NRF24）| 🟡 DHT11 设计稿完成（836B），等硬件 | W3–W4 |
 | B.3 | FreeRTOS 移植（3 任务并行）| ⬜ 未开始 | W5–W6 |
 | B.4 | 自研二进制协议 + CRC16 | ⬜ 未开始 | W7–W8 |
 | B.5 | 多节点组网 + OneNet 上报 | ⬜ 未开始 | W9–W11 |
@@ -42,10 +42,9 @@ stm32_sensor_net/
 │   └── PROTOCOL.md         ← 协议文档（B.4 填）
 ├── firmware/
 │   ├── Makefile.common     ← STM32 GCC 编译共用规则
-│   └── 01_hello_uart/      ← B.1 工程
-│       ├── Makefile
-│       ├── flash.sh
-│       └── README.md       ← CubeMX 操作步骤
+│   ├── 01_hello_uart/      ← B.1 工程（寄存器级，编译通过 732B）
+│   └── 02_dht11/           ← B.2.1 工程（设计稿完成 836B）
+│       └── docs/DHT11_DESIGN.md   ← 单总线协议 + 时序分析
 ├── gateway/                ← ESP32-S3 网关（B.5 起填）
 ├── tools/
 │   ├── install_toolchain.sh ← 工具链一键安装
