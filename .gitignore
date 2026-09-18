@@ -1,0 +1,22 @@
+# 编译产物
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+build/
+Debug/
+Release/
+*.mxproject/
+
+# IDE 临时
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
