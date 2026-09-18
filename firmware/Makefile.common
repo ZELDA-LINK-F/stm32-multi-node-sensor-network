@@ -29,6 +29,9 @@ FPU     :=
 FLOAT   :=
 MCU     := $(CPU) -mthumb $(FLOAT) $(FPU)
 
+# === 默认链接脚本（必须在 LDFLAGS 之前定义）===
+LDSCRIPT := STM32F103VETX_FLASH.ld
+
 # === 编译选项 ===
 CFLAGS  := $(MCU) $(C_DEFS) $(C_INCLUDES) -Os -g3 -std=gnu11 \
            -Wall -Wextra -Wundef -Wdouble-promotion \
@@ -40,7 +43,7 @@ LDFLAGS := $(MCU) -specs=nano.specs -T$(LDSCRIPT) \
            -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref \
            -Wl,--gc-sections
 
-# === CubeMX 标准目录（多数 STM32 工程用这套）===
+# === CubeMX 标准目录（多数 STM32 工程用这套，B.2 HAL 工程用）===
 CUBE_INC := \
     -IDrivers/STM32F1xx_HAL_Driver/Inc \
     -IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy \
@@ -48,9 +51,6 @@ CUBE_INC := \
     -IDrivers/CMSIS/Include
 
 ALL_INCLUDES := $(CUBE_INC) $(C_INCLUDES)
-
-# === 默认链接脚本（按芯片系列，VET6 用 VE 那个）===
-LDSCRIPT := STM32F103VETx_FLASH.ld
 
 # === 编译流程 ===
 OBJECTS  = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
