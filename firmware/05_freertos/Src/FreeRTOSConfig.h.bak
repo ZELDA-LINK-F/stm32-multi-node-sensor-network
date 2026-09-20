@@ -65,15 +65,8 @@
 
 /* === 断言失败回调（调 usart1 输出）=== */
 void vAssertCalled(const char *pcFile, uint32_t ulLine);
-#define configASSERT( x )  /* DISABLED for debug */
+#define configASSERT( x )  if( ( x ) == 0 ) vAssertCalled(__FILE__, __LINE__)
 
 /* 钩子函数在 main.c 中定义，无需前置声明 */
 
 #endif /* FREERTOS_CONFIG_H */
-/*
- * ⚠️ 临时禁用 configASSERT 用于 FreeRTOS 调试
- *
- * 原因：vTaskStartScheduler 期间某个 ASSERT 失败（具体哪个待查）
- * 禁用后 4 任务 + 2 队列正常工作
- * 调试完成后应恢复 #define configASSERT( x ) if( ( x ) == 0 ) vAssertCalled(__FILE__, __LINE__)
- */

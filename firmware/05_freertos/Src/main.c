@@ -230,9 +230,22 @@ static void Task_Heartbeat(void *pvParameters) {
 /* ============================================================
  * main
  * ============================================================ */
+/* LED 闪烁（GPIOC Pin13，VET6 板载蓝色 LED）*/
+#define GPIOC_CRH (*(volatile uint32_t *)0x40011004UL)
+#define GPIOC_ODR (*(volatile uint32_t *)0x4001100CUL)
+static void led_init(void) {
+    *(volatile uint32_t *)0x40021018 |= (1U << 4);  /* RCC IOPCEN */
+    GPIOC_CRH = (GPIOC_CRH & ~(0xFU << 20)) | (0x3U << 20); /* PC13 = PP 50MHz */
+}
+static void led_toggle(void) {
+    GPIOC_ODR ^= (1U << 13);
+}
+
 int main(void) {
     SystemInit();           /* 72MHz 时钟 */
     usart1_init();
+    led_init();
+    led_toggle();  /* 第一次闪烁证明 SystemInit 成功 */
 
     usart1_puts("\r\n=== FreeRTOS 4-Task Demo (B.3) ===\r\n");
     usart1_puts("Task Sensor(3) / Protocol(2) / TX(1) / Heartbeat(0)\r\n");
