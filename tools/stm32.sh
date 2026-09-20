@@ -80,6 +80,8 @@ do_serial() {
     local port="${SERIAL_PORT:-/dev/ttyUSB0}"
     local baud="${SERIAL_BAUD:-115200}"
     ok "读串口 $port @ $baud (3 秒)"
+    # 烧录后等 3 秒让 USART buffer 准备好
+    sleep 3
     timeout 3 cat "$port" 2>&1 || true
 }
 
