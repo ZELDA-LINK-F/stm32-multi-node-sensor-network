@@ -140,7 +140,8 @@ static void Task_Sensor(void *pvParameters) {
         }
 
         /* LED 心跳：每 10 个 tick (100ms) 翻转一次 → 视觉 5Hz 闪烁 */
-        if ((tick % 10) == 0) led_toggle_all();
+        /* 每 3 秒翻转一次（300 ticks * 10ms）= 判定程序还在跑 */
+        if ((tick % 300) == 0) led_toggle_all();
 
         tick++;
         vTaskDelay(pdMS_TO_TICKS(10));   /* 100Hz */
@@ -258,16 +259,16 @@ static void led_init(void) {
     GPIOB_ODR |= (1U << 0) | (1U << 1) | (1U << 5);
 }
 
-/* 只 toggle 蓝灯 PB1（野火指南者确认接线）*/
+/* 绿 PB0（用户要求 3s 心跳）*/
 static void led_toggle_all(void) {
-    GPIOB_ODR ^= (1U << 1);
+    GPIOB_ODR ^= (1U << 0);
 }
 
 int main(void) {
     SystemInit();           /* 72MHz 时钟 */
     usart1_init();
     led_init();
-    led_toggle_all();  /* 第一次切换证明 SystemInit 成功 */
+    led_toggle_all();  /* 第一次切换证明 SystemInit 成功（PB0 绿）*/
 
     usart1_puts("\r\n=== FreeRTOS 4-Task Demo (B.3) ===\r\n");
     usart1_puts("Task Sensor(3) / Protocol(2) / TX(1) / Heartbeat(0)\r\n");
