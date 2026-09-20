@@ -22,6 +22,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+
+/* LED 闪烁前向声明 */
+static void led_toggle(void);
+static void led_init(void);
 #include "system_stm32f1xx.h"
 
 /* === USART1 (PA9/PA10 @ 115200) === */
@@ -135,6 +139,9 @@ static void Task_Sensor(void *pvParameters) {
             xQueueSend(queue_data, &msg, 0);
         }
 
+        /* LED 心跳：每 10 个 tick (100ms) 翻转一次 → 视觉 5Hz 闪烁 */
+        if ((tick % 10) == 0) led_toggle();
+
         tick++;
         vTaskDelay(pdMS_TO_TICKS(10));   /* 100Hz */
     }
@@ -230,12 +237,15 @@ static void Task_Heartbeat(void *pvParameters) {
 /* ============================================================
  * main
  * ============================================================ */
+
 /* LED 闪烁（GPIOC Pin13，VET6 板载蓝色 LED）*/
 #define GPIOC_CRH (*(volatile uint32_t *)0x40011004UL)
 #define GPIOC_ODR (*(volatile uint32_t *)0x4001100CUL)
 static void led_init(void) {
     *(volatile uint32_t *)0x40021018 |= (1U << 4);  /* RCC IOPCEN */
-    GPIOC_CRH = (GPIOC_CRH & ~(0xFU << 20)) | (0x3U << 20); /* PC13 = PP 50MHz */
+    /* PC13 硬件限速 2MHz（不是 50MHz！CNF=00 MODE=10 → 0x2）*/
+    GPIOC_CRH = (GPIOC_CRH & ~(0xFU << 20)) | (0x2U << 20);
+    GPIOC_ODR |= (1U << 13);   /* 默认高电平（LED 灭，低电平点亮）*/
 }
 static void led_toggle(void) {
     GPIOC_ODR ^= (1U << 13);
