@@ -5,13 +5,15 @@ BUILD_DIR := build
 C_SOURCES := \
     Src/main.c \
     Src/bsp_i2c1.c \
-    Src/bsp_bno055.c
+    Src/bsp_bno055.c \
+    ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s
 
 C_INCLUDES := \
-    -ISrc
+    -ISrc \
+    -I../common
 
 C_DEFS := \
     -DSTM32F103xE \

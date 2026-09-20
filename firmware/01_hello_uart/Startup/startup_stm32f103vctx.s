@@ -86,7 +86,8 @@ LoopFillZeroBss:
     cmp   r2, r4
     bcc   FillZeroBss
 
-    /* 3. B.1 简化：直接调 main（跳过 SystemInit，B.3 FreeRTOS 时配 72MHz） */
+    /* 3. 配置 72MHz 时钟（HSE × 9 PLL） */
+    bl    SystemInit
     bl    main
 
 LoopForever:

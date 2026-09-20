@@ -10,13 +10,15 @@ BUILD_DIR := build
 
 # === 源文件 ===
 C_SOURCES := \
-    Src/main.c
+    Src/main.c \
+    ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s
 
 C_INCLUDES := \
-    -ISrc
+    -ISrc \
+    -I../common
 
 C_DEFS := \
     -DSTM32F103xE \
