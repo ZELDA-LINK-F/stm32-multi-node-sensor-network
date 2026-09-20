@@ -25,7 +25,7 @@
 
 /* LED 闪烁前向声明 */
 static void led_init(void);
-static void led_red_toggle(void);
+static void led_toggle_all(void);
 #include "system_stm32f1xx.h"
 
 /* === USART1 (PA9/PA10 @ 115200) === */
@@ -140,7 +140,7 @@ static void Task_Sensor(void *pvParameters) {
         }
 
         /* LED 心跳：每 10 个 tick (100ms) 翻转一次 → 视觉 5Hz 闪烁 */
-        if ((tick % 10) == 0) led_red_toggle();
+        if ((tick % 10) == 0) led_toggle_all();
 
         tick++;
         vTaskDelay(pdMS_TO_TICKS(10));   /* 100Hz */
@@ -250,6 +250,7 @@ static void led_init(void) {
      *    CNF=00 MODE=11 → 0x3
      *    PB0 在 CRL 的 bit[0:3]，PB1 在 bit[4:7]，PB5 在 bit[20:23]
      */
+    /* PB0/1/5 都配推挽输出 50MHz，不管哪个版本都能覆盖 */
     GPIOB_CRL = (GPIOB_CRL & ~((0xFU << 0) | (0xFU << 4))) | ((0x3U << 0) | (0x3U << 4));
     GPIOB_CRH = (GPIOB_CRH & ~(0xFU << 20)) | (0x3U << 20);
 
@@ -257,15 +258,16 @@ static void led_init(void) {
     GPIOB_ODR |= (1U << 0) | (1U << 1) | (1U << 5);
 }
 
-static void led_red_toggle(void)   { GPIOB_ODR ^= (1U << 5); }  /* PB5 红 */
-static void led_green_toggle(void) { GPIOB_ODR ^= (1U << 0); }  /* PB0 绿 */
-static void led_blue_toggle(void)  { GPIOB_ODR ^= (1U << 1); }  /* PB1 蓝 */
+/* 3 个 LED 一起翻转 - 不管引脚映射如何都看得到闪 */
+static void led_toggle_all(void) {
+    GPIOB_ODR ^= (1U << 0) | (1U << 1) | (1U << 5);
+}
 
 int main(void) {
     SystemInit();           /* 72MHz 时钟 */
     usart1_init();
     led_init();
-    led_red_toggle();  /* 第一次切换证明 SystemInit 成功 */
+    led_toggle_all();  /* 第一次切换证明 SystemInit 成功 */
 
     usart1_puts("\r\n=== FreeRTOS 4-Task Demo (B.3) ===\r\n");
     usart1_puts("Task Sensor(3) / Protocol(2) / TX(1) / Heartbeat(0)\r\n");
