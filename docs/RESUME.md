@@ -294,3 +294,36 @@
 ---
 
 **Last edit: 2026-09-20 by Codex**
+
+## 9. 实物验证日志（2026-09-20）
+
+**首次烧录 hello_uart 到 VET6 指南者，结果**：
+
+```
+=== OpenOCD + CMSIS-DAP 烧录 ===
+Info : device id = 0x10036414
+Info : flash size = 512 KiB          ← 确认 STM32F103VET6
+** Programming Finished **
+** Verified OK **
+** Resetting Target **
+
+=== 串口输出（115200 baud）===
+MCU: STM32F103VET6 @ 72M[Hz]       ← SystemInit 真的把时钟切到 72MHz
+Hello UART! count=1
+Hello UART! count=2
+Hello UART! count=3
+...
+```
+
+**意义**：
+- SystemInit 把 HSE 8MHz × PLL9 切到 72MHz **真的工作了**（之前是理论上）
+- 编译产物 836B 在真板子上跑通
+- 4 个 bug 修复后代码稳定
+
+**烧录工具链**（VET6 指南者用 CMSIS-DAP）：
+```bash
+./firmware/01_hello_uart/flash.sh
+# 等价于：
+openocd -f interface/cmsis-dap.cfg -f target/stm32f1x.cfg \
+    -c "program build/hello_uart.elf verify reset exit"
+```

@@ -1,25 +1,14 @@
-#!/usr/bin/env bash
-# 一键烧录 hello_uart
-# 跑法：bash firmware/01_hello_uart/flash.sh
-set -euo pipefail
+#!/bin/bash
+# flash.sh — 用 OpenOCD + CMSIS-DAP 烧录 VET6 指南者
+# 用法：./flash.sh [build/xxx.elf]
 
-cd "$(dirname "$0")"
+ELF="${1:-build/hello_uart.elf}"
 
-if [[ ! -f build/hello_uart.bin ]]; then
-    echo "❌ 没有 build/hello_uart.bin，先 make"
+if [ ! -f "$ELF" ]; then
+    echo "❌ 找不到 $ELF"
     exit 1
 fi
 
-echo "[1/2] 探测 ST-Link..."
-if ! st-info --probe >/dev/null 2>&1; then
-    echo "❌ ST-Link 未连接"
-    echo "   检查：USB 线、ST-Link 灯、dmesg | tail -20"
-    exit 1
-fi
-st-info --probe
-echo ""
-
-echo "[2/2] 烧录..."
-st-flash --reset --verify write build/hello_uart.bin 0x08000000
-echo ""
-echo "✅ 烧录完成。打开串口助手（115200 8N1）应该看到 Hello UART 循环打印"
+echo "=== 烧录: $ELF ==="
+openocd -f interface/cmsis-dap.cfg -f target/stm32f1x.cfg \
+    -c "program $ELF verify reset exit" 2>&1 | tail -10
