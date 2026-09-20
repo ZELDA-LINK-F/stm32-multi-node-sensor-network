@@ -65,14 +65,12 @@ void nrf24_set_rx_address_p0(const uint8_t *addr5) {
 
 void nrf24_set_mode(nrf24_mode_t mode) {
     uint8_t cfg = nrf24_read_reg(NRF24_REG_CONFIG);
-    if (mode == NRF24_MODE_PRX) {
-        cfg |=  (1U << 0);    /* PRIM_RX = 1 */
-    } else {
-        cfg &= ~(1U << 0);    /* PRIM_RX = 0 */
-    }
+    if (mode == NRF24_MODE_PRX) cfg |=  (1U << 0);
+    else                        cfg &= ~(1U << 0);
     nrf24_write_reg(NRF24_REG_CONFIG, cfg);
 
-    /* CE 高 >10us 才进入 RX/TX */
+    /* PRX 模式：CE 高 >10us 才进入监听 */
+    /* PTX 模式：CE 由 nrf24_send() 内脉冲控制 */
     if (mode == NRF24_MODE_PRX) {
         NRF24_CE_HIGH();
         delay_us(20);
@@ -178,8 +176,11 @@ uint8_t nrf24_send(const uint8_t *payload, uint8_t len) {
     nrf24_write_reg(NRF24_REG_STATUS,
                     NRF24_STATUS_TX_DS | NRF24_STATUS_MAX_RT);
 
-    if (status & NRF24_STATUS_MAX_RT) return 0;  /* 失败 */
-    if (status & NRF24_STATUS_TX_DS)  return 1;  /* 成功 */
+    if (status & NRF24_STATUS_MAX_RT) {
+        nrf24_cmd(NRF24_CMD_FLUSH_TX);   /* 清空残留 FIFO 否则下次 TX 会失败 */
+        return 0;
+    }
+    if (status & NRF24_STATUS_TX_DS) return 1;
     return 0;  /* 超时 */
 }
 

@@ -24,6 +24,7 @@
 #define I2C_SR1_ADDR          (1U << 1)   /* 地址已发送 + ACK */
 #define I2C_SR1_BTF           (1U << 2)   /* 字节传输完成 */
 #define I2C_SR1_RXNE          (1U << 6)   /* 接收非空 */
+#define I2C_SR1_AF             (1U << 10)  /* 应答失败（NACK）*/
 #define I2C_SR1_TXE           (1U << 7)   /* 发送空 */
 #define I2C_CR1_PE            (1U << 0)
 #define I2C_CR1_START         (1U << 8)
@@ -79,7 +80,16 @@ uint8_t i2c1_send_byte(uint8_t data) {
     if (!i2c1_wait_event(I2C_SR1_TXE, I2C_TIMEOUT)) return 0;
     I2C1_DR = data;
     if (!i2c1_wait_event(I2C_SR1_BTF, I2C_TIMEOUT)) return 0;
-    return (I2C1_SR1 & I2C_SR1_RXNE) ? 0 : 1;  /* 实际应该看 ADDR 后的 ACK */
+    /* 检查 AF (Acknowledge Failure) 位 = SR1 bit 10
+     *  - AF=1 → 从机发了 NACK → 失败
+     *  - AF=0 → 从机发了 ACK  → 成功
+     * AF 必须写 0 清，否则下次还认为失败
+     */
+    if (I2C1_SR1 & I2C_SR1_AF) {
+        I2C1_SR1 &= ~I2C_SR1_AF;
+        return 0;
+    }
+    return 1;
 }
 
 /* 接收 1 字节，ack=1 发 ACK，ack=0 发 NACK */

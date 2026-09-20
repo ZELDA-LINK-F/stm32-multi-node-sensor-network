@@ -21,7 +21,7 @@ static void delay_ms(uint32_t ms) {
 }
 
 /* 写 BNO055 1 字节寄存器（应用层函数）*/
-static uint8_t bno055_write_reg(uint8_t reg, uint8_t data) {
+static uint8_t _priv_bno055_write_reg(uint8_t reg, uint8_t data) {
     if (!i2c1_start()) return 0;
     if (!i2c1_send_byte(BNO055_I2C_ADDR << 1 | 0)) { i2c1_stop(); return 0; }
     if (!i2c1_send_byte(reg)) { i2c1_stop(); return 0; }
@@ -31,7 +31,7 @@ static uint8_t bno055_write_reg(uint8_t reg, uint8_t data) {
 }
 
 /* 读 BNO055 1 字节寄存器（应用层函数）*/
-static uint8_t bno055_read_reg(uint8_t reg, uint8_t *data) {
+static uint8_t _priv_bno055_read_reg(uint8_t reg, uint8_t *data) {
     /* 第一阶段：写寄存器地址 */
     if (!i2c1_start()) return 0;
     if (!i2c1_send_byte(BNO055_I2C_ADDR << 1 | 0)) { i2c1_stop(); return 0; }
@@ -46,7 +46,7 @@ static uint8_t bno055_read_reg(uint8_t reg, uint8_t *data) {
 }
 
 /* 连续读 N 字节（BNO055 自动地址递增）*/
-static uint8_t bno055_read_regs(uint8_t reg, uint8_t *buf, uint8_t len) {
+static uint8_t _priv_bno055_read_regs(uint8_t reg, uint8_t *buf, uint8_t len) {
     if (!i2c1_start()) return 0;
     if (!i2c1_send_byte(BNO055_I2C_ADDR << 1 | 0)) { i2c1_stop(); return 0; }
     if (!i2c1_send_byte(reg)) { i2c1_stop(); return 0; }
@@ -65,12 +65,12 @@ static uint8_t bno055_read_regs(uint8_t reg, uint8_t *buf, uint8_t len) {
 uint8_t bno055_init(void) {
     uint8_t chip_id = 0;
 
-    /* 1. 探测设备 */
-    if (!bno055_read_reg(BNO055_REG_CHIP_ID, &chip_id)) return 0;
+    /* 1. 探测设备（读 CHIP_ID 寄存器 0x00 应返回 0xA0）*/
+    if (!_priv_bno055_read_reg(BNO055_REG_CHIP_ID, &chip_id)) return 0;
     if (chip_id != 0xA0) return 0;
 
     /* 2. 配置 NDOF 模式 */
-    if (!bno055_write_reg(BNO055_REG_OPR_MODE, BNO055_OPR_NDOF)) return 0;
+    if (!_priv_bno055_write_reg(BNO055_REG_OPR_MODE, BNO055_OPR_NDOF)) return 0;
     delay_ms(10);  /* 模式切换需要时间 */
 
     return 1;
@@ -81,7 +81,7 @@ uint8_t bno055_read_euler(bno055_euler_t *eul) {
     uint8_t buf[6];
 
     /* 寄存器 0x1A-0x1F：HEADING_MSB HEADING_LSB ROLL_MSB ROLL_LSB PITCH_MSB PITCH_LSB */
-    if (!bno055_read_regs(BNO055_REG_EUL_H_MSB, buf, 6)) return 0;
+    if (!_priv_bno055_read_regs(BNO055_REG_EUL_H_MSB, buf, 6)) return 0;
 
     /* 解析为有符号 16 位整数（小端序）*/
     eul->heading = (int16_t)(buf[0] | (buf[1] << 8));
