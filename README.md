@@ -39,7 +39,8 @@ stm32_sensor_net/
 │   ├── PLAN.md             ← 执行方案
 │   ├── DECISIONS.md        ← D1–D6 决策记录
 │   ├── BOM.md              ← 硬件清单
-│   └── PROTOCOL.md         ← 协议文档（B.4 填）
+│   ├── PROTOCOL.md         ← 协议文档（278 行，B.4）
+│   └── FREERTOS_DESIGN.md  ← FreeRTOS 设计稿（400 行，B.3）
 ├── firmware/
 │   ├── Makefile.common     ← STM32 GCC 编译共用规则
 │   ├── common/             ← SystemInit 72MHz 时钟（3 个工程共享）
