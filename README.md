@@ -16,7 +16,7 @@
 | B.3 | FreeRTOS 移植（3 任务并行）| ⬜ 未开始 | W5–W6 |
 | B.4 | 自研二进制协议 + CRC16 | ⬜ 未开始 | W7–W8 |
 | B.5 | 多节点组网 + OneNet 上报 | ⬜ 未开始 | W9–W11 |
-| B.6 | 文档 + 简历素材 | ⬜ 未开始 | W12 |
+| B.6 | 简历素材整合 | ✅ docs/RESUME.md 完成（296 行） | W12 |
 
 ## 硬件清单
 
@@ -41,7 +41,8 @@ stm32_sensor_net/
 │   ├── BOM.md              ← 硬件清单
 │   ├── PROTOCOL.md         ← 协议文档（278 行，B.4）
 │   ├── FREERTOS_DESIGN.md  ← FreeRTOS 设计稿（400 行，B.3）
-│   └── GATEWAY_DESIGN.md   ← ESP32-S3 网关设计稿（479 行，B.5）
+│   ├── GATEWAY_DESIGN.md   ← ESP32-S3 网关设计稿（479 行，B.5）
+│   └── RESUME.md           ← 秋招简历素材（296 行，B.6）
 ├── firmware/
 │   ├── Makefile.common     ← STM32 GCC 编译共用规则
 │   ├── common/             ← SystemInit 72MHz 时钟（3 个工程共享）
@@ -57,13 +58,19 @@ stm32_sensor_net/
 └── .gitignore
 ```
 
-## 简历素材（占位，B.6 完成后写）
+## 简历素材（✅ B.6 完成）
+
+完整简历素材 + 面试 Q&A + 杀手锏话术见 **[docs/RESUME.md](docs/RESUME.md)**（296 行）
+
+快速摘要：
 
 ```
 项目：基于 STM32F103VET6 的多节点传感网系统
-- 设计自研二进制通信协议（帧头+长度+类型+CRC16），CRC 校验保证 1% 误码率下零漏检
-- 3 个 STM32 节点通过 NRF24L01+ 2.4GHz 接入 ESP32-S3 网关，网关经 Wi-Fi/MQTT 上报到 OneNet
-- FreeRTOS 实现 3 任务并行采集，队列 + 二值信号量同步，任务周期抖动 < 1ms
+• 异构多节点（2×C8T6 + 1×VET6）+ NRF24L01+ 2.4GHz 组网
+  + ESP32-S3 网关经 MQTT 上报 OneNet
+• FreeRTOS V10.6.1 移植，4 任务 + 2 队列，BNO055 100Hz 数据零丢失
+• 寄存器级外设驱动（USART/I2C/SPI），固件 < 8KB，不依赖 HAL
+• 自研二进制协议（帧头+类型+CRC16-MODBUS）+ Python 验证工具
 ```
 
 ## 许可
