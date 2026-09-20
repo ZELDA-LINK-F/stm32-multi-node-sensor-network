@@ -23,6 +23,7 @@
 #include "esp_event.h"
 #include "mqtt_client.h"
 #include "protocol.h"
+#include "bsp_nrf24.h"
 
 static const char *TAG = "GATEWAY";
 
@@ -231,25 +232,33 @@ static void Task_Parser(void *pvParameters) {
  * Task NRF24_RX — NRF24 接收（占位）
  * ============================================================ */
 static void Task_NRF24_RX(void *pvParameters) {
-    ESP_LOGW(TAG, "NRF24_RX not implemented yet — using loopback");
+    /* 初始化 NRF24 为 PRX 模式（接收方），信道 76（避开 WiFi）*/
+    if (!nrf24_init(NRF24_MODE_PRX, 76)) {
+        ESP_LOGE(TAG, "NRF24 init failed, task will exit");
+        vTaskDelete(NULL);
+        return;
+    }
 
-    /* TODO: 用 ESP-IDF SPI 驱动实现 NRF24L01+ 接收
-     *       复用 firmware/04_nrf24/Src/bsp_nrf24.c 的算法
-     *       （firmware/common/protocol.c 也可以 #include）
-     */
+    ESP_LOGI(TAG, "NRF24_RX started, listening on channel 76");
 
-    /* 暂时：每 5 秒造一个假帧（仿真测试链路）*/
-    rx_msg_t fake;
+    rx_msg_t msg;
     while (1) {
-        /* 模拟节点 2 (BNO055) 的 DATA_REPORT 帧 */
-        uint8_t payload[] = {0x01, 0x2E, 0xFF, 0xAD, 0x00, 0xA0};
-        fake.frame_len = protocol_build(PROTOCOL_TYPE_DATA_REPORT,
-                                          PROTOCOL_ADDR_GATEWAY,
-                                          payload, 6,
-                                          fake.frame, sizeof(fake.frame));
-        fake.timestamp = xTaskGetTickCount();
-        xQueueSend(queue_frames, &fake, 0);
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        /* 阻塞读 NRF24 FIFO（最多 100ms 超时）*/
+        uint8_t payload[NRF24_MAX_PAYLOAD];
+        uint8_t len = nrf24_receive(payload, NRF24_MAX_PAYLOAD);
+        if (len > 0) {
+            /* 把 NRF24 原始数据当协议帧处理 */
+            if (len <= sizeof(msg.frame)) {
+                memcpy(msg.frame, payload, len);
+                msg.frame_len = len;
+                msg.timestamp = xTaskGetTickCount();
+                if (xQueueSend(queue_frames, &msg, 0) != pdTRUE) {
+                    ESP_LOGW(TAG, "queue_frames full, dropping frame");
+                }
+            }
+        }
+        /* 短延迟避免忙等 CPU */
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
