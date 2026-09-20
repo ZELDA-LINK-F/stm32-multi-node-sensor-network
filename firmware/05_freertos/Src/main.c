@@ -258,9 +258,9 @@ static void led_init(void) {
     GPIOB_ODR |= (1U << 0) | (1U << 1) | (1U << 5);
 }
 
-/* 3 个 LED 一起翻转 - 不管引脚映射如何都看得到闪 */
+/* 只 toggle 蓝灯 PB1（野火指南者确认接线）*/
 static void led_toggle_all(void) {
-    GPIOB_ODR ^= (1U << 0) | (1U << 1) | (1U << 5);
+    GPIOB_ODR ^= (1U << 1);
 }
 
 int main(void) {
