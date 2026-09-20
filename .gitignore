@@ -22,3 +22,4 @@ Release/
 Thumbs.db
 firmware/05_freertos/third_party/
 firmware/05_freertos/build/
+~/bin/stm32
