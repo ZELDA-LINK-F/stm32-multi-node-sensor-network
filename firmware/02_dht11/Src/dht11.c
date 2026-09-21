@@ -1,3 +1,4 @@
+#include <stdint.h>
 /*
  * dht11.c — DHT11 单总线驱动实现
  *
@@ -39,12 +40,12 @@ static inline uint8_t dht11_pin_read(void) { return (DHT11_GPIO_IDR_REG >> DHT11
 
 /* 设为开漏输出 50MHz：CNF=01 MODE=11 → 0x7 */
 static inline void dht11_set_output(void) {
-    DHT11_GPIO_CRH_REG = (DHT11_GPIO_CRH_REG & ~(0xFU << 0)) | (0x7U << 0);
+    DHT11_GPIO_CRL_REG = (DHT11_GPIO_CRL_REG & ~(0xFU << 12)) | (0x7U << 12);
 }
 
 /* 设为浮空输入：CNF=01 MODE=00 → 0x4 */
 static inline void dht11_set_input(void) {
-    DHT11_GPIO_CRH_REG = (DHT11_GPIO_CRH_REG & ~(0xFU << 0)) | (0x4U << 0);
+    DHT11_GPIO_CRL_REG = (DHT11_GPIO_CRL_REG & ~(0xFU << 12)) | (0x4U << 12);
 }
 
 /* 等引脚到指定电平，超时返回 1 */
