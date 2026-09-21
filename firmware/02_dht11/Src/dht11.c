@@ -13,14 +13,23 @@
  */
 #include "dht11.h"
 
-/* === SysTick 1us 延时（@ 72MHz）=== */
+/* === DWT 周期计数器做 us 延时（@ 72MHz = 72 cycles/us）===
+ * 不依赖 SysTick（DWT 是 ARM 内核调试单元，永远在跑）
+ */
 static void delay_us(uint32_t us) {
-    volatile uint32_t *systick_val = (volatile uint32_t *)0xE000E018UL;
-    volatile uint32_t *systick_ctrl = (volatile uint32_t *)0xE000E010UL;
-    for (uint32_t i = 0; i < us; i++) {
-        *systick_val = 0;
-        while (!(*systick_ctrl & (1U << 16)));
+    static uint8_t dwt_inited = 0;
+    if (!dwt_inited) {
+        /* 启用 DWT */
+        *(volatile uint32_t *)0xE000EDFCUL |= (1U << 24);  /* DEMCR.TRCENA */
+        *(volatile uint32_t *)0xE0001004UL = 0;              /* DWT.CYCCNT = 0 */
+        *(volatile uint32_t *)0xE0001000UL |= (1U << 0);   /* DWT.CTRL.CYCCNTENA */
+        dwt_inited = 1;
     }
+
+    volatile uint32_t *cyccnt = (volatile uint32_t *)0xE0001004UL;
+    uint32_t start = *cyccnt;
+    uint32_t ticks = us * 72;  /* 72MHz = 72 cycles/us */
+    while ((*cyccnt - start) < ticks);
 }
 
 /* === PA8 操作 === */
@@ -55,6 +64,12 @@ void dht11_init(void) {
     /* 设 PA8 开漏输出，默认高（总线释放）*/
     dht11_set_output();
     dht11_pin_high();
+
+    /* 关键：把 SysTick 配成 1us/tick（默认 SystemInit 是 1ms/tick）*/
+    *(volatile uint32_t *)0xE000E014UL = 72 - 1;       /* LOAD */
+    *(volatile uint32_t *)0xE000E018UL = 0;             /* VAL */
+    *(volatile uint32_t *)0xE000E010UL = 0x05;          /* CLKSOURCE | ENABLE */
+
     delay_us(1000);  /* 上电稳定 */
 }
 

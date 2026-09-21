@@ -14,7 +14,7 @@
 #define DHT11_GPIO_IDR_REG     (*(volatile uint32_t *)0x40010808UL)
 #define DHT11_GPIO_BSRR_REG    (*(volatile uint32_t *)0x40010810UL)
 #define DHT11_RCC_IOPAEN_BIT   (1U << 2)
-#define DHT11_PIN_NUM          8
+#define DHT11_PIN_NUM          3   /* PA3 - 避开 PA8 */
 
 /* === API === */
 
