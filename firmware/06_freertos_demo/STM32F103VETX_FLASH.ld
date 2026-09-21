@@ -1,0 +1,1 @@
+../05_freertos/STM32F103VETX_FLASH.ld

@@ -4,6 +4,7 @@ BUILD_DIR := build
 
 C_SOURCES := \
     Src/main.c \
+    Src/dht11.c \
     ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \
