@@ -1,9 +1,20 @@
-/*
- * stm32f1xx.h — STM32F103 寄存器统一宏定义
- *
- * 替代每个工程里重复的寄存器定义。
- * 用法：直接 #include "stm32f1xx.h" 即可
+/**
+ * @file    stm32f1xx.h
+ * @brief   STM32F103 寄存器宏定义（统一头）
+ * @details 5 个 STM32 工程共用的寄存器地址 + 位定义
+ *          分两种形式：
+ *          - _ADDR 后缀：地址常量（用于数组初始化）
+ *          - 普通宏：dereferenced 寄存器（用于赋值）
+ * @author  ZELDA-LINK-F
+ * @date    2026-09-22
+ * @version 1.0
+ * 
+ * @section 设计原则
+ * 1. SYS 层（最底层）：只定义寄存器，不做逻辑
+ * 2. 所有 _ADDR 是地址常量，可用在 static const 数组里
+ * 3. 普通宏是 dereferenced 指针，用于直接读写寄存器
  */
+
 #ifndef STM32F1XX_H
 #define STM32F1XX_H
 
@@ -16,14 +27,14 @@
 /* === GPIOA === */
 #define GPIOA_BASE      0x40010800UL
 #define GPIOA_CRL_ADDR  (GPIOA_BASE + 0x00)
-#define GPIOA_CRL       (*(volatile uint32_t *)GPIOA_CRL_ADDR)
 #define GPIOA_CRH_ADDR  (GPIOA_BASE + 0x04)
-#define GPIOA_CRH       (*(volatile uint32_t *)GPIOA_CRH_ADDR)
 #define GPIOA_IDR_ADDR  (GPIOA_BASE + 0x08)
-#define GPIOA_IDR       (*(volatile uint32_t *)GPIOA_IDR_ADDR)
 #define GPIOA_ODR_ADDR  (GPIOA_BASE + 0x0CUL)
-#define GPIOA_ODR       (*(volatile uint32_t *)GPIOA_ODR_ADDR)
 #define GPIOA_BSRR_ADDR (GPIOA_BASE + 0x10UL)
+#define GPIOA_CRL       (*(volatile uint32_t *)GPIOA_CRL_ADDR)
+#define GPIOA_CRH       (*(volatile uint32_t *)GPIOA_CRH_ADDR)
+#define GPIOA_IDR       (*(volatile uint32_t *)GPIOA_IDR_ADDR)
+#define GPIOA_ODR       (*(volatile uint32_t *)GPIOA_ODR_ADDR)
 #define GPIOA_BSRR      (*(volatile uint32_t *)GPIOA_BSRR_ADDR)
 #define RCC_APB2ENR_IOPAEN  (1U << 2)
 
@@ -48,7 +59,6 @@
 #define USART1_BRR      (*(volatile uint32_t *)(USART1_BASE + 0x08))
 #define USART1_CR1      (*(volatile uint32_t *)(USART1_BASE + 0x0CUL))
 #define RCC_APB2ENR_USART1EN  (1U << 14)
-
 #define USART_SR_TXE    (1U << 7)
 #define USART_CR1_UE    (1U << 13)
 #define USART_CR1_TE    (1U << 3)
@@ -69,11 +79,12 @@
 #define DEMCR_TRCENA    (1U << 24)
 #define DWT_CTRL_CYCCNTENA  (1U << 0)
 
-/* === 通用工具宏 === */
+/* === GPIO 模式宏（CNF + MODE）=== */
 #define GPIO_OUT_PP_50M  0x3
 #define GPIO_OUT_OD_50M  0x7
 #define GPIO_IN_FLOAT    0x4
 
+/* === 位操作宏 === */
 #define GPIO_SET_BIT(gpio_bsrr, pin)   ((gpio_bsrr) = (1U << (pin)))
 #define GPIO_RESET_BIT(gpio_bsrr, pin) ((gpio_bsrr) = (1U << ((pin) + 16)))
 
