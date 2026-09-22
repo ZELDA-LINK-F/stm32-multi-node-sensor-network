@@ -10,7 +10,7 @@
 #include "system_stm32f1xx.h"
 #include "hal_delay.h"
 #include "hal_usart.h"
-#include "bsp_bno055.h"
+#include "drv_bno055.h"
 
 int main(void) {
     SystemInit();

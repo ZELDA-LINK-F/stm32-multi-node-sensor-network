@@ -4,8 +4,8 @@ BUILD_DIR := build
 
 C_SOURCES := \
     Src/main.c \
-    Src/bsp_i2c1.c \
-    Src/bsp_bno055.c \
+    Src/drv_i2c.c \
+    Src/drv_bno055.c \
     ../common/system_stm32f1xx.c \
     ../common/hal_delay.c \
     ../common/hal_gpio.c \

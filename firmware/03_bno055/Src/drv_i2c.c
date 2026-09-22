@@ -1,7 +1,7 @@
 /*
  * bsp_i2c1.c — I2C1 寄存器级实现
  */
-#include "bsp_i2c1.h"
+#include "drv_i2c.h"
 
 /* === 寄存器定义（RM0008 表 1 + Ch 24）== */
 #define RCC_APB2ENR_IOPBEN    (1U << 3)

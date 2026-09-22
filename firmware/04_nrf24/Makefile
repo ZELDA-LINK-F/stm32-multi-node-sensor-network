@@ -4,8 +4,8 @@ BUILD_DIR := build
 
 C_SOURCES := \
     Src/main.c \
-    Src/bsp_spi1.c \
-    Src/bsp_nrf24.c \
+    Src/drv_spi.c \
+    Src/drv_nrf24.c \
     ../common/system_stm32f1xx.c \
     ../common/hal_delay.c \
     ../common/hal_gpio.c \

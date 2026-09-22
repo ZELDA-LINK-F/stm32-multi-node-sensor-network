@@ -2,8 +2,8 @@
  * bsp_nrf24.c — NRF24L01+ 寄存器级应用层
  * 基于 bsp_spi1.h 的全双工 SPI 通信
  */
-#include "bsp_nrf24.h"
-#include "bsp_spi1.h"
+#include "drv_nrf24.h"
+#include "drv_spi.h"
 
 /* === GPIO 操作宏（PB0 = CE）=== */
 #define NRF24_CE_HIGH()      do { *(volatile uint32_t *)0x40010C0C |=  (1U << 0); } while (0)

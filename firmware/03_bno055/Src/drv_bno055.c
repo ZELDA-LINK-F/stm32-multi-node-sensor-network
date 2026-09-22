@@ -1,8 +1,8 @@
 /*
  * bsp_bno055.c — BNO055 应用层
  */
-#include "bsp_bno055.h"
-#include "bsp_i2c1.h"
+#include "drv_bno055.h"
+#include "drv_i2c.h"
 
 /* === SysTick 延时（复用 bsp_i2c1.c 里的，但独立声明）=== */
 #define SysTick_LOAD     (*(volatile uint32_t *)0xE000E014UL)

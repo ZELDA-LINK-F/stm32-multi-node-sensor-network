@@ -1,7 +1,7 @@
 /*
  * bsp_spi1.c — SPI1 寄存器级驱动
  */
-#include "bsp_spi1.h"
+#include "drv_spi.h"
 
 /* === RCC === */
 #define RCC_BASE             0x40021000UL
