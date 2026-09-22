@@ -32,8 +32,8 @@ static void led_init(void) {
 
 static void led_toggle(void) {
     /* 读当前值 → 翻转 → 写回（避免直接 XOR 因为读 BSRR 不便）*/
-    volatile uint32_t *odr = (volatile uint32_t *)0x40010C0CUL;
-    *odr ^= (1U << LED_PIN);
+    
+    gpio_toggle_pin(LED_PORT, LED_PIN);
 }
 
 /* === 消息结构 === */

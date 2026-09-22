@@ -65,3 +65,12 @@ uint8_t gpio_get_pin(gpio_port_t port, uint8_t pin) {
     volatile uint32_t *idr = (volatile uint32_t *)GPIO_IDR_TABLE[port];
     return (*idr >> pin) & 1U;
 }
+
+/* === 翻转引脚电平 === */
+void gpio_toggle_pin(gpio_port_t port, uint8_t pin) {
+    /* 读当前 ODR → XOR 目标位 → 写回 */
+    volatile uint32_t *odr;
+    if (port == GPIO_PORT_A) odr = (volatile uint32_t *)GPIOA_ODR_ADDR;
+    else                     odr = (volatile uint32_t *)GPIOB_ODR_ADDR;
+    *odr ^= (1U << pin);
+}

@@ -30,5 +30,6 @@ void     gpio_enable_clock(gpio_port_t port);
 void     gpio_config_pin(gpio_port_t port, uint8_t pin, gpio_mode_t mode);
 void     gpio_set_pin(gpio_port_t port, uint8_t pin, uint8_t level);
 uint8_t  gpio_get_pin(gpio_port_t port, uint8_t pin);
+void     gpio_toggle_pin(gpio_port_t port, uint8_t pin);
 
 #endif
