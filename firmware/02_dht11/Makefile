@@ -1,10 +1,14 @@
-# 02_dht11 — DHT11 寄存器级 Makefile
+# 02_dht11 — DHT11 温湿度采集（重构版）
 TARGET := dht11
 BUILD_DIR := build
 
+# 源文件（应用 + BSP 公共层）
 C_SOURCES := \
     Src/main.c \
     Src/dht11.c \
+    ../common/bsp_delay.c \
+    ../common/bsp_gpio.c \
+    ../common/bsp_usart.c \
     ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \

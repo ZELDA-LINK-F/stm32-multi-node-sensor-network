@@ -33,7 +33,7 @@ static void delay_us(uint32_t us) {
     while ((*cyccnt - start) < ticks);
 }
 
-/* === PA8 操作 === */
+/* === PA3 操作 === */
 static inline void dht11_pin_low(void)  { DHT11_GPIO_BSRR_REG = (1U << (DHT11_PIN_NUM + 16)); }   /* reset bit */
 static inline void dht11_pin_high(void) { DHT11_GPIO_BSRR_REG = (1U << DHT11_PIN_NUM); }           /* set bit */
 static inline uint8_t dht11_pin_read(void) { return (DHT11_GPIO_IDR_REG >> DHT11_PIN_NUM) & 1U; }
@@ -62,16 +62,11 @@ static uint8_t dht11_wait(uint8_t level, uint32_t timeout_us) {
 void dht11_init(void) {
     /* 开 GPIOA 时钟 */
     *(volatile uint32_t *)0x40021018 |= DHT11_RCC_IOPAEN_BIT;
-    /* 设 PA8 开漏输出，默认高（总线释放）*/
+    /* 设 PA3 开漏输出，默认高（总线释放）*/
     dht11_set_output();
     dht11_pin_high();
 
-    /* 关键：把 SysTick 配成 1us/tick（默认 SystemInit 是 1ms/tick）*/
-    *(volatile uint32_t *)0xE000E014UL = 72 - 1;       /* LOAD */
-    *(volatile uint32_t *)0xE000E018UL = 0;             /* VAL */
-    *(volatile uint32_t *)0xE000E010UL = 0x05;          /* CLKSOURCE | ENABLE */
-
-    delay_us(1000);  /* 上电稳定 */
+    delay_us(1000);  /* 上电稳定（DWT 已配 1us/tick）*/
 }
 
 /* === 读 1 bit ===
