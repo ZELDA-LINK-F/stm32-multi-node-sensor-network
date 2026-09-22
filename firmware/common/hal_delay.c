@@ -1,12 +1,12 @@
 /*
- * bsp_delay.c — 精确延时（基于 DWT 周期计数器）
+ * hal_delay.c — 精确延时（基于 DWT 周期计数器）
  *
  * 为什么用 DWT 而不是 SysTick？
  *   - SysTick 配置繁琐（LOAD/VAL/CTRL 三步）
  *   - SysTick 容易被其他代码意外修改
  *   - DWT 是 ARM 内核调试单元，永远在跑，1 cycle = 1/72 us
  */
-#include "bsp_delay.h"
+#include "hal_delay.h"
 #include "stm32f1xx.h"
 
 #define CPU_HZ  72000000UL

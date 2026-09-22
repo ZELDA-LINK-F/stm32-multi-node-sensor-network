@@ -1,5 +1,5 @@
 /*
- * bsp_usart.h — USART 统一 API
+ * hal_usart.h — USART 统一 API
  */
 #ifndef BSP_USART_H
 #define BSP_USART_H

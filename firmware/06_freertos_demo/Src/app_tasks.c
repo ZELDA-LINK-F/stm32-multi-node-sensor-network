@@ -1,7 +1,7 @@
 /*
  * app_tasks.c — 5 任务实现 + IPC（queue_count + mutex_usart）+ log_msg
  *
- * 本文件依赖 FreeRTOS 和 bsp_usart（log_msg 通过它输出）。
+ * 本文件依赖 FreeRTOS 和 hal_usart（log_msg 通过它输出）。
  */
 #include <stdint.h>
 
@@ -10,7 +10,7 @@
 #include "queue.h"
 #include "semphr.h"
 
-#include "bsp_usart.h"
+#include "hal_usart.h"
 #include "bsp_led.h"
 #include "app_tasks.h"
 
@@ -21,18 +21,18 @@ static QueueHandle_t     queue_count  = NULL;
 static SemaphoreHandle_t mutex_usart  = NULL;
 
 /* ===========================================================================
- * log_msg — 受 mutex 保护的串口打印（替代直接调用 bsp_usart_puts）
+ * log_msg — 受 mutex 保护的串口打印（替代直接调用 hal_usart_puts）
  * =========================================================================== */
 void log_msg(const char *task_name, const char *label, uint32_t val) {
     if (mutex_usart) {
         xSemaphoreTake(mutex_usart, pdMS_TO_TICKS(50));
     }
-    bsp_usart_puts("[");
-    bsp_usart_puts(task_name);
-    bsp_usart_puts("] ");
-    bsp_usart_puts(label);
-    bsp_usart_putu(val);
-    bsp_usart_puts("\r\n");
+    hal_usart_puts("[");
+    hal_usart_puts(task_name);
+    hal_usart_puts("] ");
+    hal_usart_puts(label);
+    hal_usart_putu(val);
+    hal_usart_puts("\r\n");
     if (mutex_usart) {
         xSemaphoreGive(mutex_usart);
     }
@@ -45,7 +45,7 @@ void app_tasks_init(void) {
     queue_count = xQueueCreate(4, sizeof(uint32_t));
     mutex_usart = xSemaphoreCreateMutex();
     if (queue_count == NULL || mutex_usart == NULL) {
-        bsp_usart_puts("[FATAL] app_tasks_init: IPC create failed!\r\n");
+        hal_usart_puts("[FATAL] app_tasks_init: IPC create failed!\r\n");
         for (;;) {}
     }
 }
@@ -114,13 +114,13 @@ void Task_Heartbeat(void *pvParameters) {
         if (mutex_usart) {
             xSemaphoreTake(mutex_usart, pdMS_TO_TICKS(50));
         }
-        bsp_usart_puts("[HB #");
-        bsp_usart_putu(hb_tick);
-        bsp_usart_puts("] uptime=");
-        bsp_usart_putu(now * portTICK_PERIOD_MS);
-        bsp_usart_puts("ms queue=");
-        bsp_usart_putu((uint32_t)qcnt);
-        bsp_usart_puts("\r\n");
+        hal_usart_puts("[HB #");
+        hal_usart_putu(hb_tick);
+        hal_usart_puts("] uptime=");
+        hal_usart_putu(now * portTICK_PERIOD_MS);
+        hal_usart_puts("ms queue=");
+        hal_usart_putu((uint32_t)qcnt);
+        hal_usart_puts("\r\n");
         if (mutex_usart) {
             xSemaphoreGive(mutex_usart);
         }

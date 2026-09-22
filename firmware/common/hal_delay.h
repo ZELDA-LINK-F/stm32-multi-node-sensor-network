@@ -1,5 +1,5 @@
 /*
- * bsp_delay.h — 精确延时（基于 DWT 周期计数器）
+ * hal_delay.h — 精确延时（基于 DWT 周期计数器）
  * @ 72MHz CPU：DWT 每 cycle = 1/72 us
  */
 #ifndef BSP_DELAY_H

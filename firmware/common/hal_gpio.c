@@ -1,7 +1,7 @@
 /*
- * bsp_gpio.c — GPIO 统一操作
+ * hal_gpio.c — GPIO 统一操作
  */
-#include "bsp_gpio.h"
+#include "hal_gpio.h"
 
 /* 端口基地址表（顺序对应 gpio_port_t）*/
 

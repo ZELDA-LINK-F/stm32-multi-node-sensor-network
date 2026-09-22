@@ -1,9 +1,9 @@
 /*
- * bsp_usart.c — USART1 @ PA9/PA10 @ 115200
+ * hal_usart.c — USART1 @ PA9/PA10 @ 115200
  */
-#include "bsp_usart.h"
+#include "hal_usart.h"
 #include "stm32f1xx.h"
-#include "bsp_gpio.h"
+#include "hal_gpio.h"
 
 #define BRR_115200_72MHZ  ((39U << 4) | 1U)
 

@@ -17,9 +17,9 @@ C_SOURCES := \
     $(FREERTOS_KERNEL)/portable/GCC/ARM_CM3/port.c \
     $(FREERTOS_KERNEL)/portable/MemMang/heap_4.c \
     ../common/system_stm32f1xx.c \
-    ../common/bsp_delay.c \
-    ../common/bsp_gpio.c \
-    ../common/bsp_usart.c
+    ../common/hal_delay.c \
+    ../common/hal_gpio.c \
+    ../common/hal_usart.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s

@@ -8,8 +8,8 @@
  */
 #include <stdint.h>
 #include "system_stm32f1xx.h"
-#include "bsp_delay.h"
-#include "bsp_usart.h"
+#include "hal_delay.h"
+#include "hal_usart.h"
 #include "bsp_bno055.h"
 
 int main(void) {

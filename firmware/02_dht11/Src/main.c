@@ -10,8 +10,8 @@
  */
 #include <stdint.h>
 #include "system_stm32f1xx.h"     /* SystemInit（72MHz）*/
-#include "bsp_delay.h"            /* delay_init/us/ms */
-#include "bsp_usart.h"            /* usart1_init_115200/putc/puts/putu */
+#include "hal_delay.h"            /* delay_init/us/ms */
+#include "hal_usart.h"            /* usart1_init_115200/putc/puts/putu */
 #include "dht11.h"                /* dht11_init/read */
 
 int main(void) {

@@ -7,7 +7,7 @@
  * 详细注释和任务说明见 docs/DESIGN.md（待补）。
  *
  * 文件清单：
- *   bsp_usart.h/c   — USART1 驱动（纯硬件层）
+ *   hal_usart.h/c   — USART1 驱动（纯硬件层）
  *   bsp_led.h/c     — RGB LED 驱动（纯硬件层）
  *   app_tasks.h/c   — 5 任务 + 队列 + 互斥锁 + log_msg（应用层）
  *   freertos_hooks.c— FreeRTOS 钩子（错误处理）
@@ -20,20 +20,20 @@
 
 #include "system_stm32f1xx.h"   /* SystemInit() — 72MHz 时钟 */
 
-#include "bsp_usart.h"
+#include "hal_usart.h"
 #include "bsp_led.h"
 #include "app_tasks.h"
 
 int main(void) {
     /* 1. 硬件初始化 */
     SystemInit();                 /* 72MHz 时钟（common/system_stm32f1xx.c）*/
-    bsp_usart_init();             /* USART1 @ 115200 8N1 */
+    hal_usart_init();             /* USART1 @ 115200 8N1 */
     bsp_led_init();               /* RGB LED：红 PB5 / 绿 PB0 / 蓝 PB1 */
 
-    /* 2. 启动横幅（用裸 bsp_usart_puts，此时 mutex 还没建）*/
-    bsp_usart_puts("\r\n=== FreeRTOS 5-Task Demo ===\r\n");
-    bsp_usart_puts("Fast=Blink(prio2,100ms) Slow=Blink(prio1,500ms) ");
-    bsp_usart_puts("Producer(prio2,200ms) Printer(prio3,event) HB(idle+1,5s)\r\n\r\n");
+    /* 2. 启动横幅（用裸 hal_usart_puts，此时 mutex 还没建）*/
+    hal_usart_puts("\r\n=== FreeRTOS 5-Task Demo ===\r\n");
+    hal_usart_puts("Fast=Blink(prio2,100ms) Slow=Blink(prio1,500ms) ");
+    hal_usart_puts("Producer(prio2,200ms) Printer(prio3,event) HB(idle+1,5s)\r\n\r\n");
 
     /* 3. 创建 IPC 对象（队列 + 互斥锁）*/
     app_tasks_init();
@@ -49,6 +49,6 @@ int main(void) {
     vTaskStartScheduler();
 
     /* 不应该到这里 */
-    bsp_usart_puts("[FATAL] Scheduler returned!\r\n");
+    hal_usart_puts("[FATAL] Scheduler returned!\r\n");
     for (;;) {}
 }

@@ -6,9 +6,9 @@ BUILD_DIR := build
 C_SOURCES := \
     Src/main.c \
     Src/dht11.c \
-    ../common/bsp_delay.c \
-    ../common/bsp_gpio.c \
-    ../common/bsp_usart.c \
+    ../common/hal_delay.c \
+    ../common/hal_gpio.c \
+    ../common/hal_usart.c \
     ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \

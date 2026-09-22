@@ -7,9 +7,9 @@ C_SOURCES := \
     Src/bsp_spi1.c \
     Src/bsp_nrf24.c \
     ../common/system_stm32f1xx.c \
-    ../common/bsp_delay.c \
-    ../common/bsp_gpio.c \
-    ../common/bsp_usart.c
+    ../common/hal_delay.c \
+    ../common/hal_gpio.c \
+    ../common/hal_usart.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s

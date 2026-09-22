@@ -1,9 +1,9 @@
 #include <stdint.h>
 
 /*
- * bsp_usart.c — USART1 寄存器版驱动（不依赖 HAL 库）
+ * hal_usart.c — USART1 寄存器版驱动（不依赖 HAL 库）
  */
-#include "bsp_usart.h"
+#include "hal_usart.h"
 
 /* USART1 寄存器 */
 #define USART1_BASE   0x40013800UL
@@ -20,7 +20,7 @@
 /* 72MHz → 115200 波特率：BRR = 72M/115200 = 625 = (39<<4)|1 */
 #define USART1_BRR_115200_72MHZ  ((39U << 4) | 1U)
 
-void bsp_usart_init(void) {
+void hal_usart_init(void) {
     /* 开 GPIOA + USART1 时钟（APB2ENR bit2=IOPA, bit14=USART1）*/
     *(volatile uint32_t *)0x40021018 |= (1U << 2) | (1U << 14);
 
@@ -34,19 +34,19 @@ void bsp_usart_init(void) {
     USART1_CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
 }
 
-void bsp_usart_putc(char c) {
+void hal_usart_putc(char c) {
     while (!(USART1_SR & USART_SR_TXE));   /* 等发送缓冲空 */
     USART1_DR = (uint32_t)c;
 }
 
-void bsp_usart_puts(const char *s) {
-    while (*s) bsp_usart_putc(*s++);
+void hal_usart_puts(const char *s) {
+    while (*s) hal_usart_putc(*s++);
 }
 
-void bsp_usart_putu(uint32_t v) {
+void hal_usart_putu(uint32_t v) {
     char buf[11];
     int i = 0;
-    if (v == 0) { bsp_usart_putc('0'); return; }
+    if (v == 0) { hal_usart_putc('0'); return; }
     while (v) { buf[i++] = '0' + (v % 10); v /= 10; }
-    while (i) bsp_usart_putc(buf[--i]);
+    while (i) hal_usart_putc(buf[--i]);
 }

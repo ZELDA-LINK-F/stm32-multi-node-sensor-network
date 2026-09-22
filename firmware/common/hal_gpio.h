@@ -1,5 +1,5 @@
 /*
- * bsp_gpio.h — GPIO 统一 API
+ * hal_gpio.h — GPIO 统一 API
  *
  * 不再写裸寄存器！直接调：
  *   gpio_config_output(GPIOA, 3, GPIO_OUT_OD_50M);
