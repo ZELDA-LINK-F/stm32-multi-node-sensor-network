@@ -1,4 +1,4 @@
-# 05_freertos — FreeRTOS 4 任务工程
+# 05_freertos — FreeRTOS 4 任务工程（BSP 重构版）
 TARGET := freertos
 BUILD_DIR := build
 
@@ -8,7 +8,7 @@ FREERTOS_INC := \
     -I$(FREERTOS_KERNEL)/include \
     -I$(FREERTOS_KERNEL)/portable/GCC/ARM_CM3
 
-# === FreeRTOS 源文件（最小集）===
+# === 源文件（应用 + FreeRTOS + BSP 公共层）===
 C_SOURCES := \
     Src/main.c \
     $(FREERTOS_KERNEL)/tasks.c \
@@ -16,7 +16,10 @@ C_SOURCES := \
     $(FREERTOS_KERNEL)/list.c \
     $(FREERTOS_KERNEL)/portable/GCC/ARM_CM3/port.c \
     $(FREERTOS_KERNEL)/portable/MemMang/heap_4.c \
-    ../common/system_stm32f1xx.c
+    ../common/system_stm32f1xx.c \
+    ../common/bsp_delay.c \
+    ../common/bsp_gpio.c \
+    ../common/bsp_usart.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s

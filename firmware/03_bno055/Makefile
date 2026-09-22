@@ -1,4 +1,4 @@
-# 03_bno055 — BNO055 寄存器级 Makefile
+# 03_bno055 — BNO055 寄存器级 Makefile（BSP 重构版）
 TARGET := bno055
 BUILD_DIR := build
 
@@ -6,7 +6,10 @@ C_SOURCES := \
     Src/main.c \
     Src/bsp_i2c1.c \
     Src/bsp_bno055.c \
-    ../common/system_stm32f1xx.c
+    ../common/system_stm32f1xx.c \
+    ../common/bsp_delay.c \
+    ../common/bsp_gpio.c \
+    ../common/bsp_usart.c
 
 ASM_SOURCES := \
     Startup/startup_stm32f103vctx.s

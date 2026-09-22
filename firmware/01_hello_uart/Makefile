@@ -1,16 +1,12 @@
-# 01_hello_uart — 寄存器级 Makefile
-# 用法：
-#   make            编译
-#   make size       查看编译产物大小
-#   make flash      烧录（需 ST-Link）
-#   make clean      清理
-
+# 01_hello_uart — 最简单的 USART 测试（重构版）
 TARGET := hello_uart
 BUILD_DIR := build
 
-# === 源文件 ===
 C_SOURCES := \
     Src/main.c \
+    ../common/bsp_delay.c \
+    ../common/bsp_gpio.c \
+    ../common/bsp_usart.c \
     ../common/system_stm32f1xx.c
 
 ASM_SOURCES := \
@@ -26,7 +22,6 @@ C_DEFS := \
 
 include ../Makefile.common
 
-# === 额外目标 ===
 size: $(BUILD_DIR)/$(TARGET).elf
 	@echo "---- 编译产物大小 ----"
 	@$(SZ) $<
